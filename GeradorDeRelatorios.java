@@ -122,7 +122,7 @@ public class GeradorDeRelatorios {
 			FiltroEstoqueStrategy(int quantidade): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
 			
 		*/
-		FiltroStrategy todos = new FiltroTodosStrategy(produtos);
+		FiltroStrategy todos = new FiltroTodosStrategy();
 		FiltroContext filtro = new FiltroContext(todos);
 		produtos = filtro.filtra(produtos);
 		/*

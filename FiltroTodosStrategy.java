@@ -1,5 +1,5 @@
 public class FiltroTodosStrategy implements FiltroStrategy {
-  public FiltroTodosStrategy(Produto [] produtos) { }
+  public FiltroTodosStrategy() { }
 
   public Produto [] filtra(Produto []  produtos) {
     return produtos;
