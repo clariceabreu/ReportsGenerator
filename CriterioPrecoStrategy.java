@@ -1,6 +1,6 @@
 import java.io.IOException;
-public class PriceSortStrategy implements ISortStrategy {
-    public PriceSortStrategy () {
+public class CriterioPrecoStrategy implements CriterioStrategy {
+    public CriterioPrecoStrategy () {
     }
 
     public int compara (Produto i, Produto j) {

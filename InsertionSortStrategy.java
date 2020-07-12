@@ -1,18 +1,17 @@
 import java.io.IOException;
-public class InsertionSortStrategy implements IAlgorithmStrategy {
+public class InsertionSortStrategy implements OrdenacaoStrategy {
     
     private Produto [] produtos;
-    private int criterio;
-    
+    private CriterioStrategy criterio;
 
-    public InsertionSortStrategy (Produto [] produtos, int criterio) {
-        this.produtos = produtos;
+    public InsertionSortStrategy (CriterioStrategy criterio) {
         this.criterio = criterio;
     }
 
-    public Produto [] ordena() {
+    public Produto [] ordena(Produto [] produtos) {
+        this.produtos = produtos;
         ordena(0, produtos.length - 1);
-        return produtos;
+        return this.produtos;
     }
 
     private void ordena (int ini, int fim) {
@@ -21,26 +20,11 @@ public class InsertionSortStrategy implements IAlgorithmStrategy {
             int j = (i - 1);
 
             while (j >= ini){
-                if(criterio == 0) {
-                    if (x.getDescricao().compareToIgnoreCase(produtos[j].getDescricao()) < 0 ) {
+                if (criterio.compara(x, produtos[j]) < 0) {
                         produtos[j + 1] = produtos[j];
                         j--;
-                    }
-                    else break;
-                } else if (criterio == 1) {
-                    if (x.getPreco() < produtos[j].getPreco()) {       
-                        produtos[j + 1] = produtos[j];
-                        j--;
-                    }
-                    else break;
-                } else if (criterio == 2) {
-                    if (x.getQtdEstoque() < produtos[j].getQtdEstoque()) {
-                        produtos[j + 1] = produtos[j];
-                        j--;
-                    }
-                    else break;
                 }
-                else throw new RuntimeException("Criterio invalido!");
+                else break;
             }
             produtos[j + 1] = x;
         }

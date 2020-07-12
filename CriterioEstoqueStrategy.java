@@ -1,8 +1,8 @@
 import java.io.IOException;
-public class StockSortStrategy implements ISortStrategy {
+public class CriterioEstoqueStrategy implements CriterioStrategy {
 
-    public StockSortStrategy (Produto [] produtos) {
-    }
+    public CriterioEstoqueStrategy () { }
+
     public int compara (Produto i, Produto j) {
         if (i.getQtdEstoque() > j.getQtdEstoque()) {
             return 1;

@@ -1,31 +1,23 @@
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.awt.Color;
 
 public class GeradorDeRelatorios {
-	private Produto [] produtos;
-	private IAlgorithmStrategy algoritmo;
-	private int format_flags;
-	private IFilterStrategy filtro;
-	private HashMap<Integer, FormatacaoDecorator> produtosFormatados;
+	private Map<Produto, FormatacaoDecorator> produtos;
+	// private OrdenacaoContext ordenacao;
+	// private FiltroContext filtro;
 
-	public GeradorDeRelatorios(Produto [] produtos, IAlgorithmStrategy algoritmo, HashMap<Integer, FormatacaoDecorator> produtosFormatados, IFilterStrategy filtro){
-
-		this.produtos = new Produto[produtos.length];
-		
-		for(int i = 0; i < produtos.length; i++){
-		
-			this.produtos[i] = produtos[i];
-		}
-
-		this.algoritmo = algoritmo;
-		this.produtosFormatados = produtosFormatados;
-		this.filtro = filtro;
+	public GeradorDeRelatorios(Map<Produto, FormatacaoDecorator> produtos/*, OrdenacaoContext ordenacao, FiltroContext filtro*/){
+		this.produtos = produtos;
+		// this.ordenacao = ordenacao;
+		// this.filtro = filtro;
 	}
 	
 	public void geraRelatorio(String arquivoSaida) throws IOException {
 
-		this.produtos = this.algoritmo.ordena();
+		//this.produtos = this.ordenacao.ordena();
 
 		PrintWriter out = new PrintWriter(arquivoSaida);
 
@@ -37,25 +29,22 @@ public class GeradorDeRelatorios {
 
 		int count = 0;
 
-		this.produtos = filtro.filtra();
+		//this.produtos = filtro.filtra();
 
-		for(int i = 0; i < produtos.length; i++){
+		for(Produto p : produtos.keySet()){
 
-			Produto p = produtos[i];
-			boolean selecionado = false;
+			//Produto p = produtos[i];
+			out.print("<li>");
 
-				out.print("<li>");
+			FormatacaoDecorator formatacaoDecorator = produtos.get(p);
+			formatacaoDecorator.imprime(out, p.formataParaImpressao());
 
-				FormatacaoDecorator formatacaoDecorator = produtosFormatados.get(p.getId());
-
-				formatacaoDecorator.imprime(out, p.formataParaImpressao());
-
-				out.println("</li>");
-				count++;
+			out.println("</li>");
+			count++;
 		}
 
 		out.println("</ul>");
-		out.println(count + " produtos listados, de um total de " + produtos.length + ".");
+		out.println(count + " produtos listados, de um total de " + produtos.size() + ".");
 		out.println("</body>");
 		out.println("</html>");
 
@@ -101,40 +90,24 @@ public class GeradorDeRelatorios {
 		};
 	} 
 
-	public static HashMap<Integer, FormatacaoDecorator> formataProdutos(Produto [] produtos) {
-		HashMap<Integer, FormatacaoDecorator> produtosFormatados = new  HashMap<>();
-
-		Produto produtoMaiorValor = produtos[0];
-		Produto produtoMaiorEstoque = produtos[0];
-		Produto produtoMenorEstoque = produtos[0];
+	public static Map<Produto, FormatacaoDecorator> formataProdutos(Produto [] produtos) {
+		Map<Produto, FormatacaoDecorator> produtosFormatados = new  HashMap<>();
 
 		for (int i = 0; i < produtos.length; i++) {
-			produtosFormatados.put(produtos[i].getId(), new FormatacaoPadrao());
+			FormatacaoDecorator formatacao = new FormatacaoPadrao();
 
-			if (produtoMaiorValor.getPreco() < produtos[i].getPreco()) {
-				produtoMaiorValor = produtos[i];
+			if (produtos[i].getQtdEstoque() >= 10) {
+				formatacao = new CorDecorator(formatacao, Color.BLUE);
+			} else if (produtos[i].getQtdEstoque() <= 5) {
+				formatacao = new NegritoDecorator(formatacao);
+				formatacao = new CorDecorator(formatacao, Color.RED);
+			} else {
+				formatacao = new ItalicoDecorator(formatacao);
+				formatacao = new CorDecorator(formatacao, new Color(238, 173, 45));
 			}
 
-			if (produtoMaiorEstoque.getQtdEstoque() < produtos[i].getQtdEstoque()) {
-				produtoMaiorEstoque = produtos[i];
-			}
-
-			if (produtoMenorEstoque.getQtdEstoque() > produtos[i].getQtdEstoque()) {
-				produtoMenorEstoque = produtos[i];
-			}
+			produtosFormatados.put(produtos[i], formatacao);
 		}
-
-		FormatacaoDecorator formatacaoMaiorValor = produtosFormatados.get(produtoMaiorValor.getId());
-		formatacaoMaiorValor = new ItalicoDecorator(formatacaoMaiorValor);
-		produtosFormatados.put(produtoMaiorValor.getId(), formatacaoMaiorValor);
-
-		FormatacaoDecorator formatacaoMenorEstoque = produtosFormatados.get(produtoMenorEstoque.getId());
-		formatacaoMenorEstoque =  new NegritoDecorator(new ItalicoDecorator(formatacaoMenorEstoque));
-		produtosFormatados.put(produtoMenorEstoque.getId(), formatacaoMenorEstoque);
-
-		FormatacaoDecorator formatacaoMaiorEstoque = produtosFormatados.get(produtoMaiorEstoque.getId());
-		formatacaoMenorEstoque =  new NegritoDecorator(formatacaoMaiorEstoque);
-		produtosFormatados.put(produtoMaiorEstoque.getId(), formatacaoMaiorEstoque);
 
 		return  produtosFormatados;
 	}
@@ -142,12 +115,32 @@ public class GeradorDeRelatorios {
 	public static void main(String [] args) {
 	
 		Produto [] produtos = carregaProdutos();
-		GeradorDeRelatorios gdr;
-		IFilterStrategy todos = new AllFilterStrategy(produtos);
-		HashMap<Integer, FormatacaoDecorator> produtosFormatados = formataProdutos(produtos);
+		/*
+			Filtros disponíveis:
+			FiltroTodosStrategy(): exibe todos os produtos
+			FiltroCategoriaStrategy(String categoria): exibe apenas os produtos da categoria enviada como parâmetro
+			FiltroEstoqueStrategy(int quantidade): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
+			
+		*/
+		FiltroStrategy todos = new FiltroTodosStrategy(produtos);
+		FiltroContext filtro = new FiltroContext(todos);
+		produtos = filtro.filtra(produtos);
+		/*
+			Algoritimos de ordenação disponíveis:
+			QuickSortStrategy(CriterioStrategy criterio): odena através do algoritimo QuickSort a partir do criterio enviado como parâmetro
+			InsertionSortStratefy(CriterioStrategy criterio): odena através do algoritimo InsertionSort a partir do criterio enviado como parâmetro
 
-		gdr = new GeradorDeRelatorios(produtos, new QuickSortStrategy(produtos, new PriceSortStrategy()),
-						produtosFormatados, new Filter(todos));
+			Criterios de ordenação disponíveis:
+			CriterioEstoqueStrategy(): compara os produtos de acordo com a quantidade de estoque em sentido crescente
+			CriterioPrecoStrategy(): compara os produtos de acordo com o preço em sentido crescente
+		*/
+		OrdenacaoStrategy quickSort = new QuickSortStrategy(new CriterioEstoqueStrategy());
+		OrdenacaoContext ordenacao = new OrdenacaoContext(quickSort);
+		produtos = ordenacao.ordena(produtos);
+
+		Map<Produto, FormatacaoDecorator> produtosFormatados = formataProdutos(produtos);
+
+		GeradorDeRelatorios gdr = new GeradorDeRelatorios(produtosFormatados);
 		
 		try{
 			gdr.geraRelatorio("saida.html");

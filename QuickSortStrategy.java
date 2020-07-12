@@ -1,17 +1,17 @@
 import java.io.IOException;
-public class QuickSortStrategy implements IAlgorithmStrategy {
+public class QuickSortStrategy implements OrdenacaoStrategy {
 
 	private Produto [] produtos;
-	private ISortStrategy criterio;
+	private CriterioStrategy criterio;
 
-	public QuickSortStrategy (Produto [] produtos, ISortStrategy criterio) {
-		this.produtos = produtos;
+	public QuickSortStrategy (CriterioStrategy criterio) {
 		this.criterio = criterio;
 	}
 
-	public Produto [] ordena() {
+	public Produto [] ordena(Produto [] produtos) {
+		this.produtos = produtos;
 		ordena(0, produtos.length - 1);
-		return produtos;
+		return this.produtos;
 	}
 	
 	private void ordena(int ini, int fim) {

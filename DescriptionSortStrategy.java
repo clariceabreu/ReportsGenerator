@@ -1,5 +1,5 @@
 import java.io.IOException;
-public class DescriptionSortStrategy implements ISortStrategy {
+public class DescriptionSortStrategy implements CriterioStrategy {
 
     public DescriptionSortStrategy() {
         
