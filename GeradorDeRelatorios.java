@@ -5,20 +5,15 @@ import java.util.Map;
 import java.awt.Color;
 
 public class GeradorDeRelatorios {
-	private Map<Produto, FormatacaoDecorator> produtos;
-	// private OrdenacaoContext ordenacao;
-	// private FiltroContext filtro;
+	private Produto [] produtos;
+	private Map<Integer, FormatacaoDecorator> formatacaoProdutos;
 
-	public GeradorDeRelatorios(Map<Produto, FormatacaoDecorator> produtos/*, OrdenacaoContext ordenacao, FiltroContext filtro*/){
+	public GeradorDeRelatorios(Produto [] produtos, Map<Integer, FormatacaoDecorator> formatacaoProdutos){
 		this.produtos = produtos;
-		// this.ordenacao = ordenacao;
-		// this.filtro = filtro;
+		this.formatacaoProdutos = formatacaoProdutos;
 	}
 	
 	public void geraRelatorio(String arquivoSaida) throws IOException {
-
-		//this.produtos = this.ordenacao.ordena();
-
 		PrintWriter out = new PrintWriter(arquivoSaida);
 
 		out.println("<!DOCTYPE html><html>");
@@ -29,14 +24,11 @@ public class GeradorDeRelatorios {
 
 		int count = 0;
 
-		//this.produtos = filtro.filtra();
+		for(Produto p : produtos){
 
-		for(Produto p : produtos.keySet()){
-
-			//Produto p = produtos[i];
 			out.print("<li>");
 
-			FormatacaoDecorator formatacaoDecorator = produtos.get(p);
+			FormatacaoDecorator formatacaoDecorator = formatacaoProdutos.get(p.getId());
 			formatacaoDecorator.imprime(out, p.formataParaImpressao());
 
 			out.println("</li>");
@@ -44,7 +36,7 @@ public class GeradorDeRelatorios {
 		}
 
 		out.println("</ul>");
-		out.println(count + " produtos listados, de um total de " + produtos.size() + ".");
+		out.println(count + " produtos listados, de um total de " + produtos.length + ".");
 		out.println("</body>");
 		out.println("</html>");
 
@@ -90,8 +82,8 @@ public class GeradorDeRelatorios {
 		};
 	} 
 
-	public static Map<Produto, FormatacaoDecorator> formataProdutos(Produto [] produtos) {
-		Map<Produto, FormatacaoDecorator> produtosFormatados = new  HashMap<>();
+	public static Map<Integer, FormatacaoDecorator> formataProdutos(Produto [] produtos) {
+		Map<Integer, FormatacaoDecorator> formatacaoProdutos = new  HashMap<>();
 
 		for (int i = 0; i < produtos.length; i++) {
 			FormatacaoDecorator formatacao = new FormatacaoPadrao();
@@ -106,10 +98,10 @@ public class GeradorDeRelatorios {
 				formatacao = new CorDecorator(formatacao, new Color(238, 173, 45));
 			}
 
-			produtosFormatados.put(produtos[i], formatacao);
+			formatacaoProdutos.put(produtos[i].getId(), formatacao);
 		}
 
-		return  produtosFormatados;
+		return  formatacaoProdutos;
 	}
 
 	public static void main(String [] args) {
@@ -120,10 +112,9 @@ public class GeradorDeRelatorios {
 			FiltroTodosStrategy(): exibe todos os produtos
 			FiltroCategoriaStrategy(String categoria): exibe apenas os produtos da categoria enviada como parâmetro
 			FiltroEstoqueStrategy(int quantidade): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
-			
 		*/
-		FiltroStrategy todos = new FiltroTodosStrategy();
-		FiltroContext filtro = new FiltroContext(todos);
+		FiltroStrategy filtroStrategy = new FiltroEstoqueStrategy(10);
+		FiltroContext filtro = new FiltroContext(filtroStrategy);
 		produtos = filtro.filtra(produtos);
 		/*
 			Algoritimos de ordenação disponíveis:
@@ -134,13 +125,13 @@ public class GeradorDeRelatorios {
 			CriterioEstoqueStrategy(): compara os produtos de acordo com a quantidade de estoque em sentido crescente
 			CriterioPrecoStrategy(): compara os produtos de acordo com o preço em sentido crescente
 		*/
-		OrdenacaoStrategy quickSort = new QuickSortStrategy(new CriterioEstoqueStrategy());
-		OrdenacaoContext ordenacao = new OrdenacaoContext(quickSort);
+		OrdenacaoStrategy ordenacaoStrategy = new QuickSortStrategy(new CriterioEstoqueStrategy());
+		OrdenacaoContext ordenacao = new OrdenacaoContext(ordenacaoStrategy);
 		produtos = ordenacao.ordena(produtos);
 
-		Map<Produto, FormatacaoDecorator> produtosFormatados = formataProdutos(produtos);
+		Map<Integer, FormatacaoDecorator> formatacaoProdutos = formataProdutos(produtos);
 
-		GeradorDeRelatorios gdr = new GeradorDeRelatorios(produtosFormatados);
+		GeradorDeRelatorios gdr = new GeradorDeRelatorios(produtos, formatacaoProdutos);
 		
 		try{
 			gdr.geraRelatorio("saida.html");
