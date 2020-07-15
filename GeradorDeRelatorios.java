@@ -112,8 +112,10 @@ public class GeradorDeRelatorios {
 			FiltroTodosStrategy(): exibe todos os produtos
 			FiltroCategoriaStrategy(String categoria): exibe apenas os produtos da categoria enviada como parâmetro
 			FiltroEstoqueStrategy(int quantidade): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
+			FiltroIntervaloDePrecoStrategy(double precoInicial, double precoFinal): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
+			FiltroPalavraStrategy(String palavra): exibe apenas os produtos com estoque menor ou igual a quantidade enviada como parâmetro
 		*/
-		FiltroStrategy filtroStrategy = new FiltroEstoqueStrategy(10);
+		FiltroStrategy filtroStrategy = new FiltroIntervaloDePrecoStrategy(30.00, 100.00);
 		FiltroContext filtro = new FiltroContext(filtroStrategy);
 		produtos = filtro.filtra(produtos);
 		/*
@@ -121,11 +123,15 @@ public class GeradorDeRelatorios {
 			QuickSortStrategy(CriterioStrategy criterio): odena através do algoritimo QuickSort a partir do criterio enviado como parâmetro
 			InsertionSortStratefy(CriterioStrategy criterio): odena através do algoritimo InsertionSort a partir do criterio enviado como parâmetro
 
-			Criterios de ordenação disponíveis:
-			CriterioEstoqueStrategy(): compara os produtos de acordo com a quantidade de estoque em sentido crescente
-			CriterioPrecoStrategy(): compara os produtos de acordo com o preço em sentido crescente
+		Criterios de ordenação disponíveis:
+			CriterioDescricaoStrategy(boolean crescente): compara os produtos de acordo com a descrição/nome do produto
+			CriterioEstoqueStrategy(boolean crescente): compara os produtos de acordo com a quantidade de estoque em sentido crescente
+			CriterioPrecoStrategy(boolean crescente): compara os produtos de acordo com o preço em sentido crescente
 		*/
-		OrdenacaoStrategy ordenacaoStrategy = new QuickSortStrategy(new CriterioEstoqueStrategy());
+
+		boolean crescente = true;
+
+		OrdenacaoStrategy ordenacaoStrategy = new QuickSortStrategy(new CriterioEstoqueStrategy(crescente));
 		OrdenacaoContext ordenacao = new OrdenacaoContext(ordenacaoStrategy);
 		produtos = ordenacao.ordena(produtos);
 
