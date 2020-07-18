@@ -10,7 +10,7 @@ public class InsertionSortStrategy implements OrdenacaoStrategy {
 
     public Produto [] ordena(Produto [] produtos) {
         this.produtos = produtos;
-        ordena(0, produtos.length - 1);
+        ordena(0, this.produtos.length - 1);
         return this.produtos;
     }
 

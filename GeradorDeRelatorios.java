@@ -19,8 +19,9 @@ public class GeradorDeRelatorios {
 	}
 	
 	public void geraRelatorio(String arquivoSaida) throws IOException {
-		this.produtos = filtro.filtra(produtos);
-		this.produtos = ordenacao.ordena(produtos);
+		int totalDeProdutos = this.produtos.length;
+		this.produtos = filtro.filtra(this.produtos);
+		this.produtos = ordenacao.ordena(this.produtos);
 
 		PrintWriter out = new PrintWriter(arquivoSaida);
 
@@ -29,8 +30,6 @@ public class GeradorDeRelatorios {
 		out.println("<body>");
 		out.println("Relatorio de Produtos:");
 		out.println("<ul>");
-
-		int count = 0;
 
 		for(Produto p : this.produtos){
 
@@ -42,11 +41,10 @@ public class GeradorDeRelatorios {
 			formatacaoDecorator.imprime(out, p.formataParaImpressao());
 
 			out.println("</li>");
-			count++;
 		}
 
 		out.println("</ul>");
-		out.println(count + " produtos listados, de um total de " + this.produtos.length + ".");
+		out.println(this.produtos.length + " produtos listados, de um total de " + totalDeProdutos + ".");
 		out.println("</body>");
 		out.println("</html>");
 
@@ -97,33 +95,31 @@ public class GeradorDeRelatorios {
 		Produto [] produtos = carregaProdutos();
 		/*
 			Filtros disponíveis:
-			1.FiltroTodosStrategy(): exibe todos os produtos
+			1. FiltroTodosStrategy(): exibe todos os produtos
 			2. FiltroCategoriaStrategy(String categoria): exibe apenas os produtos da categoria enviada como parâmetro
 			3. FiltroEstoqueStrategy(int quantidade): exibe apenas os produtos com estoque menor ou igual a quantidade 
 			enviada como parâmetro
 			4. FiltroIntervaloDePrecoStrategy(double precoInicial, double precoFinal): exibe apenas os produtos com 
-			estoque menor ou igual a quantidade enviada como parâmetro
-			5.FiltroPalavraStrategy(String palavra): exibe apenas os produtos com estoque menor ou igual a quantidade 
-			enviada como parâmetro
+			preço entre os valores enviados como parâmetro
+			5. FiltroPalavraStrategy(String palavra): exibe apenas os produtos com  descrição que contenha a palavra
+			enviada
 		*/
 		FiltroStrategy filtro = new FiltroCategoriaStrategy("Livros");
 		
 		/*
 			Algoritimos de ordenação disponíveis:
-			QuickSortStrategy(CriterioStrategy criterio): odena através do algoritimo QuickSort a partir do criterio enviado como parâmetro
-			InsertionSortStratefy(CriterioStrategy criterio): odena através do algoritimo InsertionSort a partir do criterio enviado como parâmetro
+			1. QuickSortStrategy(CriterioStrategy criterio): odena através do algoritimo QuickSort a partir do criterio enviado como parâmetro
+			2. InsertionSortStrategy(CriterioStrategy criterio): odena através do algoritimo InsertionSort a partir do criterio enviado como parâmetro
 
 			Criterios de ordenação disponíveis:
 			1. CriterioEstoqueStrategy(boolean crescente): compara os produtos de acordo com a quantidade de estoque 
 			em sentido crescente (true) ou decrescente (false) de acordo com o atributo enviado
-			
 			2. CriterioPrecoStrategy(boolean crescente): compara os produtos de acordo com o preço 
 			em sentido crescente (true) ou decrescente (false) de acordo com o atributo enviado
-			
 			3.CriterioDescricaoStrategy(boolean crescente): compara os produtos de acordo com sua descrição 
 			em sentido crescente (true) ou decrescente (false) de acordo com o atributo enviado
 		*/
-		OrdenacaoStrategy ordenacao = new QuickSortStrategy(new CriterioPrecoStrategy(true));
+		OrdenacaoStrategy ordenacao = new InsertionSortStrategy(new CriterioPrecoStrategy(true));
 
 		/*
 		  Tipos de formatação disponíveis:
