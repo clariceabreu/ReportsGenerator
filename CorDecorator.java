@@ -1,10 +1,10 @@
 import java.io.PrintWriter;
 import java.awt.Color;
 
-public class CorDecorator extends PadraoDecorator {
+public class CorDecorator extends FormatacaoDecorator {
   private Color cor;
 
-  public CorDecorator (FormatacaoDecorator formatacao, Color cor) {
+  public CorDecorator (Formatacao formatacao, Color cor) {
     super(formatacao);
     this.cor =  cor;
   }

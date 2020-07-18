@@ -1,7 +1,7 @@
 import java.io.PrintWriter;
 
-public class ItalicoDecorator extends PadraoDecorator {
-    public ItalicoDecorator (FormatacaoDecorator formatacao) {
+public class ItalicoDecorator extends FormatacaoDecorator {
+    public ItalicoDecorator (Formatacao formatacao) {
         super(formatacao);
     }
 

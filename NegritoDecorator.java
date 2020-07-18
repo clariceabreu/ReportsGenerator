@@ -1,7 +1,7 @@
 import java.io.PrintWriter;
 
-public class NegritoDecorator extends PadraoDecorator {
-    public NegritoDecorator (FormatacaoDecorator formatacao) {
+public class NegritoDecorator extends FormatacaoDecorator {
+    public NegritoDecorator (Formatacao formatacao) {
         super(formatacao);
     }
 
